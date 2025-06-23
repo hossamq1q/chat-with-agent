@@ -1,11 +1,18 @@
-import { Body, Controller, Inject, Param, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Routes, Services } from '../utils/constants';
 import { IMessagesService } from './messages';
-import { ValidateConversationGuard } from "../auth/guards/validateConversation.guard";
-import { SendMessageDto } from "./dto/sendMessage.dto";
-import { AuthUser, GetConversation } from "../utils/decorators";
-import { Conversation, User } from "../utils/typeorm";
-import { AuthGuard } from "../auth/guards/auth.guard";
+import { ValidateConversationGuard } from '../auth/guards/validateConversation.guard';
+import { SendMessageDto } from './dto/sendMessage.dto';
+import { AuthUser, GetConversation } from '../utils/decorators';
+import { Conversation, User } from '../utils/typeorm';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller(Routes.MESSAGES)
 @UseGuards(AuthGuard)
@@ -17,10 +24,19 @@ export class MessagesController {
   @Post(':conversationId')
   @UseGuards(ValidateConversationGuard)
   async createMessage(
-    @GetConversation()conversation:Conversation,
+    @GetConversation() conversation: Conversation,
     @Body() payload: SendMessageDto,
-    @AuthUser()user:User
+    @AuthUser() user: User,
   ) {
-    return this.messagesService.sendMessage(conversation , payload.content , user)
+    return this.messagesService.sendMessage(
+      conversation,
+      payload.content,
+      user,
+    );
+  }
+
+  @Post()
+  async useApi(@Body() payload: SendMessageDto, @Param() apiToken: string) {
+    return this.messagesService.useApi({ apiToken, content: payload.content });
   }
 }

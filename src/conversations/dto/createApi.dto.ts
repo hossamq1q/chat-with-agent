@@ -33,16 +33,12 @@ export class DatabaseConfigDto {
   mysql_query: string;
 }
 
-export class CreateConversationDto {
+export class CreateApiDto {
   @IsArray()
   @IsString({ each: true })
   @Type(() => String)
   @IsOptional()
   urls: string[];
-
-  @IsString()
-  @IsNotEmpty()
-  conversationName: string;
 
   @IsOptional()
   @ValidateNested()

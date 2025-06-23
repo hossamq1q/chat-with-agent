@@ -17,6 +17,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { multerOptions } from '../utils/multerConfigration';
 import { CreateConversationDto } from './dto/creatConversation.dto';
 import { ValidateConversationGuard } from '../auth/guards/validateConversation.guard';
+import { CreateApiDto } from "./dto/createApi.dto";
 
 @Controller(Routes.CONVERSATIONS)
 @UseGuards(AuthGuard)
@@ -38,6 +39,20 @@ export class ConversationsController {
       body.urls,
       user,
       body.conversationName,
+      body.database_config
+    );
+  }
+
+  @Post('createApi')
+  @UseInterceptors(FilesInterceptor('files', 10, multerOptions))
+  async createApi(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body() body: CreateApiDto,
+  ) {
+    return await this.conversationsService.createApi(
+      files,
+      body.urls,
+      body.database_config
     );
   }
 

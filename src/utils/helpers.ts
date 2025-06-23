@@ -1,11 +1,12 @@
 import * as FormData from 'form-data';
 import axios from 'axios';
 import * as bcrypt from 'bcrypt';
-import { queryPayload, ResponseBuildIndex } from './types';
+import { databaseConfig, queryPayload, ResponseBuildIndex } from "./types";
 
 export async function buildIndex(
   files: Express.Multer.File[],
   urls: string[],
+  database_config:databaseConfig
 ): Promise<ResponseBuildIndex> {
   try {
     const formData = new FormData();
@@ -16,6 +17,14 @@ export async function buildIndex(
       urls.forEach((url) => {
         formData.append('urls', url);
       });
+    }
+    if (database_config) {
+      formData.append('host', database_config.host);
+      formData.append('port', database_config.port);
+      formData.append('user', database_config.user);
+      formData.append('password', database_config.password);
+      formData.append('database', database_config.database);
+      formData.append('mysql_query', database_config.mysql_query);
     }
     const response = await axios.post(
       'http://127.0.0.1:8000/build-index',

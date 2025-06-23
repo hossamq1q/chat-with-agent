@@ -4,10 +4,9 @@ import { Conversation, Message, User } from 'src/utils/typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatedBy, Services } from '../utils/constants';
-import { IConversationsService } from '../conversations/conversations';
 import { queryIndex } from '../utils/helpers';
 import { HttpStatusCode } from 'axios';
-import { messageResponse } from "../utils/types";
+import { apiParams, messageResponse } from "../utils/types";
 
 @Injectable()
 export class MessagesService implements IMessagesService {
@@ -16,22 +15,35 @@ export class MessagesService implements IMessagesService {
     private readonly messagesRepository: Repository<Message>,
   ) {}
 
+  async useApi(params: apiParams) {
+    try {
+      const response = await queryIndex({
+        indexId: params.apiToken,
+        query: params.content,
+      });
+      return { response:response };
+    } catch (error) {
+      throw new HttpException(
+        `Error  in api ${error}`,
+        HttpStatusCode.InternalServerError,
+      );
+    }
+  }
+
   async getAllMessagesForOneConversation(conversation: Conversation) {
     try {
-      const messages =await this.messagesRepository.find({
+      const messages = await this.messagesRepository.find({
         where: { conversation: conversation },
-        order: { createdAt: 'ASC' }
+        order: { createdAt: 'ASC' },
       });
-      const list:messageResponse[] = []
-      for(let i = 0; i < messages.length; i+=2) {
-        const object = {question:messages[i],response:messages[i+1]};
+      const list: messageResponse[] = [];
+      for (let i = 0; i < messages.length; i += 2) {
+        const object = { question: messages[i], response: messages[i + 1] };
         list.push(object);
       }
-      return list
-
-
+      return list;
     } catch (error) {
-      throw new HttpException(`${error}`,HttpStatusCode.InternalServerError)
+      throw new HttpException(`${error}`, HttpStatusCode.InternalServerError);
     }
   }
 
